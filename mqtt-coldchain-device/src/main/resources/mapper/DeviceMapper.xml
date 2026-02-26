@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.coldchain.device.mapper.DeviceMapper">
+
+    <resultMap id="DeviceResultMap" type="com.coldchain.device.entity.Device">
+        <id property="id" column="id"/>
+        <result property="deviceId" column="device_id"/>
+        <result property="deviceName" column="device_name"/>
+        <result property="deviceType" column="device_type"/>
+        <result property="vehicleId" column="vehicle_id"/>
+        <result property="corpId" column="corp_id"/>
+        <result property="status" column="status"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+    </resultMap>
+
+    <select id="selectByDeviceId" resultMap="DeviceResultMap">
+        SELECT id, device_id, device_name, device_type, vehicle_id, corp_id, status, created_at, updated_at
+        FROM device
+        WHERE device_id = #{deviceId}
+    </select>
+
+    <insert id="insert" parameterType="com.coldchain.device.entity.Device" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO device (device_id, device_name, device_type, vehicle_id, corp_id, status, created_at, updated_at)
+        VALUES (#{deviceId}, #{deviceName}, #{deviceType}, #{vehicleId}, #{corpId}, #{status}, NOW(), NOW())
+    </insert>
+
+    <update id="update" parameterType="com.coldchain.device.entity.Device">
+        UPDATE device
+        <set>
+            <if test="deviceName != null">device_name = #{deviceName},</if>
+            <if test="deviceType != null">device_type = #{deviceType},</if>
+            <if test="vehicleId != null">vehicle_id = #{vehicleId},</if>
+            <if test="status != null">status = #{status},</if>
+            updated_at = NOW()
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM device WHERE id = #{id}
+    </delete>
+
+</mapper>

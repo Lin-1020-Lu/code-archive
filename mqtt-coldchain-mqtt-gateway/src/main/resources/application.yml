@@ -1,0 +1,46 @@
+spring:
+  application:
+    name: mqtt-coldchain-mqtt-gateway
+  profiles:
+    active: dev
+
+  # ========== Nacos 服务注册中心 ==========
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 111.231.53.57:8848
+        group: DEFAULT_GROUP
+        namespace: public
+        username: nacos
+        password: nacos
+
+  # ========== Kafka 配置 ==========
+  kafka:
+    producer:
+      bootstrap-servers: 111.231.53.57:9092
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      retries: 1
+      batch-size: 16384
+      buffer-memory: 33554432
+      acks: 1
+
+# ========== MQTT 配置 ==========
+mqtt:
+  broker: tcp://111.231.53.57:1883
+  client-id: mqtt-gateway-${random.uuid}
+  username: admin
+  password: Miao1234
+  qos: 1
+  connection-timeout: 30
+  keep-alive-interval: 60
+
+# ========== 日志配置 ==========
+logging:
+  level:
+    com.coldchain.mqtt: debug
+    org.eclipse.paho: debug
+
+# ========== 服务器端口 ==========
+server:
+  port: 8082

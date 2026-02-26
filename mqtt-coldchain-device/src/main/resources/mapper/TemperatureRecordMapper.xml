@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.coldchain.device.mapper.TemperatureRecordMapper">
+
+    <resultMap id="TemperatureRecordResultMap" type="com.coldchain.device.entity.TemperatureRecord">
+        <id property="id" column="id"/>
+        <result property="vehicleId" column="vehicle_id"/>
+        <result property="deviceId" column="device_id"/>
+        <result property="temperature" column="temperature"/>
+        <result property="humidity" column="humidity"/>
+        <result property="location" column="location"/>
+        <result property="timestamp" column="timestamp"/>
+        <result property="createdAt" column="created_at"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="com.coldchain.device.entity.TemperatureRecord" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO temperature_data (vehicle_id, device_id, temperature, humidity, location, timestamp, created_at)
+        VALUES (#{vehicleId}, #{deviceId}, #{temperature}, #{humidity}, #{location}, #{timestamp}, NOW())
+    </insert>
+
+</mapper>

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.coldchain.alert.mapper.AlertRecordMapper">
+
+    <resultMap id="AlertRecordResultMap" type="com.coldchain.alert.entity.AlertRecord">
+        <id property="id" column="id"/>
+        <result property="alertRuleId" column="alert_rule_id"/>
+        <result property="vehicleId" column="vehicle_id"/>
+        <result property="deviceId" column="device_id"/>
+        <result property="metricType" column="metric_type"/>
+        <result property="alertValue" column="alert_value"/>
+        <result property="thresholdValue" column="threshold_value"/>
+        <result property="alertLevel" column="alert_level"/>
+        <result property="status" column="status"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="resolvedAt" column="resolved_at"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="com.coldchain.alert.entity.AlertRecord" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO alert_record (alert_rule_id, vehicle_id, device_id, metric_type, alert_value,
+                                  threshold_value, alert_level, status, created_at)
+        VALUES (#{alertRuleId}, #{vehicleId}, #{deviceId}, #{metricType}, #{alertValue},
+                #{thresholdValue}, #{alertLevel}, #{status}, NOW())
+    </insert>
+
+    <update id="updateStatus">
+        UPDATE alert_record
+        <set>
+            status = #{status},
+            <if test="status == 2">resolved_at = NOW(),</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+</mapper>

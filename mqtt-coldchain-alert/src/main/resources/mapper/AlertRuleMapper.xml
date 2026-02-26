@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.coldchain.alert.mapper.AlertRuleMapper">
+
+    <resultMap id="AlertRuleResultMap" type="com.coldchain.alert.entity.AlertRule">
+        <id property="id" column="id"/>
+        <result property="ruleName" column="rule_name"/>
+        <result property="corpId" column="corp_id"/>
+        <result property="vehicleId" column="vehicle_id"/>
+        <result property="metricType" column="metric_type"/>
+        <result property="thresholdMin" column="threshold_min"/>
+        <result property="thresholdMax" column="threshold_max"/>
+        <result property="durationSeconds" column="duration_seconds"/>
+        <result property="enabled" column="enabled"/>
+        <result property="createdAt" column="created_at"/>
+    </resultMap>
+
+    <select id="selectById" resultMap="AlertRuleResultMap">
+        SELECT id, rule_name, corp_id, vehicle_id, metric_type, threshold_min, threshold_max,
+               duration_seconds, enabled, created_at
+        FROM alert_rule
+        WHERE id = #{id}
+    </select>
+
+    <select id="selectEnabledRules" resultMap="AlertRuleResultMap">
+        SELECT id, rule_name, corp_id, vehicle_id, metric_type, threshold_min, threshold_max,
+               duration_seconds, enabled, created_at
+        FROM alert_rule
+        WHERE enabled = 1
+    </select>
+
+    <insert id="insert" parameterType="com.coldchain.alert.entity.AlertRule" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO alert_rule (rule_name, corp_id, vehicle_id, metric_type, threshold_min, threshold_max,
+                               duration_seconds, enabled, created_at)
+        VALUES (#{ruleName}, #{corpId}, #{vehicleId}, #{metricType}, #{thresholdMin}, #{thresholdMax},
+                #{durationSeconds}, #{enabled}, NOW())
+    </insert>
+
+    <update id="update" parameterType="com.coldchain.alert.entity.AlertRule">
+        UPDATE alert_rule
+        <set>
+            <if test="ruleName != null">rule_name = #{ruleName},</if>
+            <if test="metricType != null">metric_type = #{metricType},</if>
+            <if test="thresholdMin != null">threshold_min = #{thresholdMin},</if>
+            <if test="thresholdMax != null">threshold_max = #{thresholdMax},</if>
+            <if test="durationSeconds != null">duration_seconds = #{durationSeconds},</if>
+            <if test="enabled != null">enabled = #{enabled},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM alert_rule WHERE id = #{id}
+    </delete>
+
+</mapper>

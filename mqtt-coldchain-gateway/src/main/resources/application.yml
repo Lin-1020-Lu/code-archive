@@ -1,0 +1,63 @@
+spring:
+  application:
+    name: mqtt-coldchain-gateway
+  profiles:
+    active: dev
+  main:
+    web-application-type: reactive
+
+  # ========== Nacos 服务注册中心 ==========
+  cloud:
+    nacos:
+      discovery:
+        enabled: true
+        server-addr: 111.231.53.57:8848
+        group: DEFAULT_GROUP
+        namespace: public
+        username: nacos
+        password: nacos
+
+    # ========== Gateway 路由配置 ==========
+    gateway:
+      discovery:
+        locator:
+          enabled: true  # 启用服务发现路由
+      routes:
+        # 设备服务路由
+        - id: device-service
+          uri: lb://mqtt-coldchain-device
+          predicates:
+            - Path=/api/device/**
+          filters:
+            - StripPrefix=1
+
+        # 告警服务路由
+        - id: alert-service
+          uri: lb://mqtt-coldchain-alert
+          predicates:
+            - Path=/api/alert/**
+          filters:
+            - StripPrefix=1
+
+      # 全局跨域配置
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOriginPatterns: "*"
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - OPTIONS
+            allowedHeaders: "*"
+            allowCredentials: true
+
+# ========== 日志配置 ==========
+logging:
+  level:
+    org.springframework.cloud.gateway: debug
+
+# ========== 服务器端口 ==========
+server:
+  port: 8080

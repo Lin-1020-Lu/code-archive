@@ -1,0 +1,81 @@
+spring:
+  application:
+    name: mqtt-coldchain-alert
+  profiles:
+    active: dev
+
+  # ========== Nacos 服务注册中心 ==========
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 111.231.53.57:8848
+        group: DEFAULT_GROUP
+        namespace: public
+        username: nacos
+        password: nacos
+      config:
+        server-addr: 111.231.53.57:8848
+        file-extension: yaml
+        group: DEFAULT_GROUP
+        namespace: public
+        username: nacos
+        password: nacos
+
+  # ========== MySQL 配置 ==========
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://111.231.53.57:3306/coldchain?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai
+    username: root
+    password: 123456
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+      connection-timeout: 30000
+
+  # ========== Redis 配置 ==========
+  redis:
+    host: 111.231.53.57
+    port: 6379
+    password: 123456
+    database: 0
+    timeout: 3000ms
+    lettuce:
+      pool:
+        max-active: 8
+        max-idle: 8
+        min-idle: 2
+        max-wait: -1ms
+
+  # ========== Nacos 配置中心 + 注册中心 ==========
+
+
+  # ========== Kafka 配置 ==========
+  kafka:
+    consumer:
+      bootstrap-servers: 111.231.53.57:9092
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      group-id: alert-service-group
+      auto-offset-reset: earliest
+      enable-auto-commit: true
+      auto-commit-interval: 1000
+    listener:
+      concurrency: 3
+      ack-mode: record
+
+# ========== MyBatis 配置 ==========
+mybatis:
+  mapper-locations: classpath:mapper/*.xml
+  type-aliases-package: com.coldchain.alert.entity
+  configuration:
+    map-underscore-to-camel-case: true
+
+# ========== 日志配置 ==========
+logging:
+  level:
+    com.coldchain.alert.mapper: debug
+    org.springframework.kafka: debug
+
+# ========== 服务器端口 ==========
+server:
+  port: 8083
