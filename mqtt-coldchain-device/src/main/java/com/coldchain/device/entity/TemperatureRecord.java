@@ -22,7 +22,7 @@ public class TemperatureRecord implements Serializable {
     /**
      * 车辆ID
      */
-    private Long vehicleId;
+    private String vehicleId;
 
     /**
      * 设备ID

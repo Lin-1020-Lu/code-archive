@@ -33,7 +33,7 @@ public class DeviceDataConsumer {
             TemperatureData data = JSON.parseObject(message, TemperatureData.class);
             TemperatureRecord record = new TemperatureRecord();
             record.setDeviceId(data.getDeviceId());
-            record.setVehicleId(Long.valueOf(data.getVehicleId()));
+            record.setVehicleId(data.getVehicleId());
             record.setTemperature(data.getValue());
             record.setTimestamp(data.getTimestamp());
 
