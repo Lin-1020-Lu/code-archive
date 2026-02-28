@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.coldchain.user.mapper.AuditLogMapper">
+
+    <!-- 结果映射 -->
+    <resultMap id="BaseResultMap" type="com.coldchain.user.entity.AuditLog">
+        <id column="id" property="id"/>
+        <result column="tenant_id" property="tenantId"/>
+        <result column="user_id" property="userId"/>
+        <result column="username" property="username"/>
+        <result column="real_name" property="realName"/>
+        <result column="module" property="module"/>
+        <result column="operation" property="operation"/>
+        <result column="description" property="description"/>
+        <result column="method" property="method"/>
+        <result column="request_path" property="requestPath"/>
+        <result column="request_params" property="requestParams"/>
+        <result column="response" property="response"/>
+        <result column="status" property="status"/>
+        <result column="error_message" property="errorMessage"/>
+        <result column="ip" property="ip"/>
+        <result column="location" property="location"/>
+        <result column="user_agent" property="userAgent"/>
+        <result column="browser" property="browser"/>
+        <result column="os" property="os"/>
+        <result column="duration" property="duration"/>
+        <result column="created_at" property="createdAt"/>
+    </resultMap>
+
+    <!-- 基础列 -->
+    <sql id="Base_Column_List">
+        id, tenant_id, user_id, username, real_name, module, operation, description, method,
+        request_path, request_params, response, status, error_message, ip, location,
+        user_agent, browser, os, duration, created_at
+    </sql>
+
+    <!-- 插入审计日志 -->
+    <insert id="insert" parameterType="com.coldchain.user.entity.AuditLog">
+        INSERT INTO audit_log (
+            tenant_id, user_id, username, real_name, module, operation, description, method,
+            request_path, request_params, response, status, error_message, ip, location,
+            user_agent, browser, os, duration, created_at
+        ) VALUES (
+            #{tenantId}, #{userId}, #{username}, #{realName}, #{module}, #{operation},
+            #{description}, #{method}, #{requestPath}, #{requestParams}, #{response},
+            #{status}, #{errorMessage}, #{ip}, #{location}, #{userAgent}, #{browser},
+            #{os}, #{duration}, #{createdAt}
+        )
+    </insert>
+
+    <!-- 查询审计日志列表（自动过滤租户） -->
+    <select id="selectList" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM audit_log
+        WHERE tenant_id = #{tenantId}
+        <if test="userId != null">
+            AND user_id = #{userId}
+        </if>
+        <if test="module != null and module != ''">
+            AND module = #{module}
+        </if>
+        <if test="operation != null and operation != ''">
+            AND operation = #{operation}
+        </if>
+        <if test="status != null and status != ''">
+            AND status = #{status}
+        </if>
+        <if test="startTime != null">
+            AND created_at &gt;= #{startTime}
+        </if>
+        <if test="endTime != null">
+            AND created_at &lt;= #{endTime}
+        </if>
+        ORDER BY created_at DESC
+        <if test="limit != null">
+            LIMIT #{limit}
+        </if>
+        <if test="offset != null">
+            OFFSET #{offset}
+        </if>
+    </select>
+
+    <!-- 统计审计日志数量 -->
+    <select id="count" resultType="int">
+        SELECT COUNT(*)
+        FROM audit_log
+        WHERE tenant_id = #{tenantId}
+        <if test="startTime != null">
+            AND created_at &gt;= #{startTime}
+        </if>
+        <if test="endTime != null">
+            AND created_at &lt;= #{endTime}
+        </if>
+    </select>
+
+</mapper>

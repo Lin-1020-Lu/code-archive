@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.coldchain.user.mapper.TenantMapper">
+
+    <!-- 结果映射 -->
+    <resultMap id="BaseResultMap" type="com.coldchain.user.entity.Tenant">
+        <id column="id" property="id"/>
+        <result column="tenant_id" property="tenantId"/>
+        <result column="tenant_name" property="tenantName"/>
+        <result column="tenant_type" property="tenantType"/>
+        <result column="status" property="status"/>
+        <result column="expire_date" property="expireDate"/>
+        <result column="max_users" property="maxUsers"/>
+        <result column="current_users" property="currentUsers"/>
+        <result column="contact_name" property="contactName"/>
+        <result column="contact_phone" property="contactPhone"/>
+        <result column="contact_email" property="contactEmail"/>
+        <result column="isolation_type" property="isolationType"/>
+        <result column="database_name" property="databaseName"/>
+        <result column="schema_name" property="schemaName"/>
+        <result column="max_api_qps" property="maxApiQps"/>
+        <result column="data_retention_days" property="dataRetentionDays"/>
+        <result column="extra_config" property="extraConfig"/>
+        <result column="created_at" property="createdAt"/>
+        <result column="updated_at" property="updatedAt"/>
+    </resultMap>
+
+    <!-- 基础列 -->
+    <sql id="Base_Column_List">
+        id, tenant_id, tenant_name, tenant_type, status, expire_date, max_users, current_users,
+        contact_name, contact_phone, contact_email, isolation_type, database_name, schema_name,
+        max_api_qps, data_retention_days, extra_config, created_at, updated_at
+    </sql>
+
+    <!-- 根据租户 ID 查询租户 -->
+    <select id="selectByTenantId" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM tenant
+        WHERE tenant_id = #{tenantId}
+    </select>
+
+    <!-- 根据主键 ID 查询租户 -->
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM tenant
+        WHERE id = #{id}
+    </select>
+
+    <!-- 插入租户 -->
+    <insert id="insert" parameterType="com.coldchain.user.entity.Tenant" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO tenant (
+            tenant_id, tenant_name, tenant_type, status, expire_date, max_users, current_users,
+            contact_name, contact_phone, contact_email, isolation_type, database_name, schema_name,
+            max_api_qps, data_retention_days, extra_config, created_at
+        ) VALUES (
+            #{tenantId}, #{tenantName}, #{tenantType}, #{status}, #{expireDate}, #{maxUsers}, #{currentUsers},
+            #{contactName}, #{contactPhone}, #{contactEmail}, #{isolationType}, #{databaseName}, #{schemaName},
+            #{maxApiQps}, #{dataRetentionDays}, #{extraConfig}, #{createdAt}
+        )
+    </insert>
+
+    <!-- 更新租户 -->
+    <update id="updateById" parameterType="com.coldchain.user.entity.Tenant">
+        UPDATE tenant
+        <set>
+            <if test="tenantName != null">tenant_name = #{tenantName},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="expireDate != null">expire_date = #{expireDate},</if>
+            <if test="maxUsers != null">max_users = #{maxUsers},</if>
+            <if test="currentUsers != null">current_users = #{currentUsers},</if>
+            <if test="contactName != null">contact_name = #{contactName},</if>
+            <if test="contactPhone != null">contact_phone = #{contactPhone},</if>
+            <if test="contactEmail != null">contact_email = #{contactEmail},</if>
+            updated_at = #{updatedAt}
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <!-- 更新租户状态 -->
+    <update id="updateStatus">
+        UPDATE tenant
+        SET status = #{status},
+            updated_at = NOW()
+        WHERE id = #{id}
+    </update>
+
+    <!-- 更新用户数量 -->
+    <update id="updateCurrentUsers">
+        UPDATE tenant
+        SET current_users = #{currentUsers}
+        WHERE tenant_id = #{tenantId}
+    </update>
+
+    <!-- 查询所有租户列表 -->
+    <select id="selectList" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM tenant
+        <where>
+            <if test="status != null">
+                AND status = #{status}
+            </if>
+            <if test="tenantType != null">
+                AND tenant_type = #{tenantType}
+            </if>
+        </where>
+        ORDER BY id DESC
+    </select>
+
+    <!-- 检查租户 ID 是否存在 -->
+    <select id="existsByTenantId" resultType="boolean">
+        SELECT COUNT(*) > 0
+        FROM tenant
+        WHERE tenant_id = #{tenantId}
+    </select>
+
+</mapper>

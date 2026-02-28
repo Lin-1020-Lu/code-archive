@@ -25,6 +25,7 @@
         <module>mqtt-coldchain-device</module>
         <module>mqtt-coldchain-mqtt-gateway</module>
         <module>mqtt-coldchain-alert</module>
+        <module>mqtt-coldchain-user</module>
     </modules>
 
     <properties>
@@ -38,6 +39,8 @@
         <mysql.version>8.0.33</mysql.version>
         <kafka.version>2.8.1</kafka.version>
         <paho.version>1.2.5</paho.version>
+        <jwt.version>0.11.5</jwt.version>
+        <spring-security.version>5.7.11</spring-security.version>
         <fastjson.version>2.0.25</fastjson.version>
         <hutool.version>5.8.15</hutool.version>
         <lombok.version>1.18.24</lombok.version>

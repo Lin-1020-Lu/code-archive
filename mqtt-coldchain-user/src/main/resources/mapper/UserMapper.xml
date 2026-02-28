@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.coldchain.user.mapper.UserMapper">
+
+    <!-- 结果映射 -->
+    <resultMap id="BaseResultMap" type="com.coldchain.user.entity.User">
+        <id column="id" property="id"/>
+        <result column="tenant_id" property="tenantId"/>
+        <result column="username" property="username"/>
+        <result column="password" property="password"/>
+        <result column="real_name" property="realName"/>
+        <result column="email" property="email"/>
+        <result column="phone" property="phone"/>
+        <result column="role_id" property="roleId"/>
+        <result column="role_code" property="roleCode"/>
+        <result column="role_name" property="roleName"/>
+        <result column="status" property="status"/>
+        <result column="last_login_time" property="lastLoginTime"/>
+        <result column="last_login_ip" property="lastLoginIp"/>
+        <result column="login_fail_count" property="loginFailCount"/>
+        <result column="lock_time" property="lockTime"/>
+        <result column="avatar" property="avatar"/>
+        <result column="remark" property="remark"/>
+        <result column="created_by" property="createdBy"/>
+        <result column="created_at" property="createdAt"/>
+        <result column="updated_by" property="updatedBy"/>
+        <result column="updated_at" property="updatedAt"/>
+    </resultMap>
+
+    <!-- 基础列 -->
+    <sql id="Base_Column_List">
+        id, tenant_id, username, password, real_name, email, phone, role_id, role_code, role_name,
+        status, last_login_time, last_login_ip, login_fail_count, lock_time, avatar, remark,
+        created_by, created_at, updated_by, updated_at
+    </sql>
+
+    <!-- 根据用户 ID 查询用户（自动过滤租户） -->
+    <select id="selectByIdAndTenantId" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM user
+        WHERE id = #{id} AND tenant_id = #{tenantId}
+    </select>
+
+    <!-- 根据用户名查询用户（自动过滤租户） -->
+    <select id="selectByUsernameAndTenantId" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM user
+        WHERE username = #{username} AND tenant_id = #{tenantId}
+    </select>
+
+    <!-- 插入用户 -->
+    <insert id="insert" parameterType="com.coldchain.user.entity.User" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO user (
+            tenant_id, username, password, real_name, email, phone, role_id, role_code, role_name,
+            status, avatar, remark, created_by, created_at
+        ) VALUES (
+            #{tenantId}, #{username}, #{password}, #{realName}, #{email}, #{phone},
+            #{roleId}, #{roleCode}, #{roleName}, #{status}, #{avatar}, #{remark},
+            #{createdBy}, #{createdAt}
+        )
+    </insert>
+
+    <!-- 更新用户 -->
+    <update id="updateById" parameterType="com.coldchain.user.entity.User">
+        UPDATE user
+        <set>
+            <if test="realName != null">real_name = #{realName},</if>
+            <if test="email != null">email = #{email},</if>
+            <if test="phone != null">phone = #{phone},</if>
+            <if test="roleId != null">role_id = #{roleId},</if>
+            <if test="roleCode != null">role_code = #{roleCode},</if>
+            <if test="roleName != null">role_name = #{roleName},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="avatar != null">avatar = #{avatar},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="updatedBy != null">updated_by = #{updatedBy},</if>
+            updated_at = #{updatedAt}
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <!-- 更新用户（自动过滤租户） -->
+    <update id="updateByIdAndTenantId">
+        UPDATE user
+        <set>
+            <if test="user.realName != null">real_name = #{user.realName},</if>
+            <if test="user.email != null">email = #{user.email},</if>
+            <if test="user.phone != null">phone = #{user.phone},</if>
+            <if test="user.roleId != null">role_id = #{user.roleId},</if>
+            <if test="user.roleCode != null">role_code = #{user.roleCode},</if>
+            <if test="user.roleName != null">role_name = #{user.roleName},</if>
+            <if test="user.status != null">status = #{user.status},</if>
+            <if test="user.avatar != null">avatar = #{user.avatar},</if>
+            <if test="user.remark != null">remark = #{user.remark},</if>
+            updated_at = #{user.updatedAt}
+        </set>
+        WHERE id = #{user.id} AND tenant_id = #{tenantId}
+    </update>
+
+    <!-- 删除用户（软删除） -->
+    <update id="deleteByIdAndTenantId">
+        DELETE FROM user
+        WHERE id = #{id} AND tenant_id = #{tenantId}
+    </update>
+
+    <!-- 查询用户列表（自动过滤租户） -->
+    <select id="selectList" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM user
+        WHERE tenant_id = #{tenantId}
+        <if test="username != null and username != ''">
+            AND username LIKE CONCAT('%', #{username}, '%')
+        </if>
+        <if test="status != null">
+            AND status = #{status}
+        </if>
+        <if test="roleId != null">
+            AND role_id = #{roleId}
+        </if>
+        ORDER BY id DESC
+    </select>
+
+    <!-- 统计用户数量（自动过滤租户） -->
+    <select id="countByTenantId" resultType="int">
+        SELECT COUNT(*)
+        FROM user
+        WHERE tenant_id = #{tenantId}
+    </select>
+
+    <!-- 更新最后登录信息 -->
+    <update id="updateLastLoginInfo">
+        UPDATE user
+        SET last_login_time = NOW(),
+            last_login_ip = #{ip}
+        WHERE id = #{userId} AND tenant_id = #{tenantId}
+    </update>
+
+    <!-- 更新登录失败次数 -->
+    <update id="updateLoginFailCount">
+        UPDATE user
+        SET login_fail_count = #{loginFailCount},
+            lock_time = <if test="lockTime != null">#{lockTime}</if><if test="lockTime == null">NULL</if>
+        WHERE id = #{userId} AND tenant_id = #{tenantId}
+    </update>
+
+    <!-- 重置登录失败次数 -->
+    <update id="resetLoginFailCount">
+        UPDATE user
+        SET login_fail_count = 0,
+            lock_time = NULL,
+            status = 1
+        WHERE id = #{userId} AND tenant_id = #{tenantId}
+    </update>
+
+</mapper>

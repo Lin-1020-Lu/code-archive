@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.coldchain.user.mapper.RoleMapper">
+
+    <!-- 结果映射 -->
+    <resultMap id="BaseResultMap" type="com.coldchain.user.entity.Role">
+        <id column="id" property="id"/>
+        <result column="tenant_id" property="tenantId"/>
+        <result column="role_name" property="roleName"/>
+        <result column="role_code" property="roleCode"/>
+        <result column="permissions" property="permissions"/>
+        <result column="description" property="description"/>
+        <result column="is_built_in" property="isBuiltIn"/>
+        <result column="sort_order" property="sortOrder"/>
+        <result column="status" property="status"/>
+        <result column="created_by" property="createdBy"/>
+        <result column="created_at" property="createdAt"/>
+        <result column="updated_by" property="updatedBy"/>
+        <result column="updated_at" property="updatedAt"/>
+    </resultMap>
+
+    <!-- 基础列 -->
+    <sql id="Base_Column_List">
+        id, tenant_id, role_name, role_code, permissions, description, is_built_in, sort_order,
+        status, created_by, created_at, updated_by, updated_at
+    </sql>
+
+    <!-- 根据主键 ID 查询角色（自动过滤租户） -->
+    <select id="selectByIdAndTenantId" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM role
+        WHERE id = #{id} AND tenant_id = #{tenantId}
+    </select>
+
+    <!-- 根据角色代码查询角色（自动过滤租户） -->
+    <select id="selectByCodeAndTenantId" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM role
+        WHERE role_code = #{roleCode} AND tenant_id = #{tenantId}
+    </select>
+
+    <!-- 查询租户的角色列表 -->
+    <select id="selectListByTenantId" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM role
+        WHERE tenant_id = #{tenantId}
+        <if test="status != null">
+            AND status = #{status}
+        </if>
+        ORDER BY sort_order, id
+    </select>
+
+    <!-- 插入角色 -->
+    <insert id="insert" parameterType="com.coldchain.user.entity.Role" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO role (
+            tenant_id, role_name, role_code, permissions, description, is_built_in, sort_order,
+            status, created_by, created_at
+        ) VALUES (
+            #{tenantId}, #{roleName}, #{roleCode}, #{permissions}, #{description}, #{isBuiltIn},
+            #{sortOrder}, #{status}, #{createdBy}, #{createdAt}
+        )
+    </insert>
+
+    <!-- 更新角色 -->
+    <update id="updateById" parameterType="com.coldchain.user.entity.Role">
+        UPDATE role
+        <set>
+            <if test="roleName != null">role_name = #{roleName},</if>
+            <if test="permissions != null">permissions = #{permissions},</if>
+            <if test="description != null">description = #{description},</if>
+            <if test="sortOrder != null">sort_order = #{sortOrder},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="updatedBy != null">updated_by = #{updatedBy},</if>
+            updated_at = #{updatedAt}
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <!-- 删除角色（自动过滤租户） -->
+    <delete id="deleteByIdAndTenantId">
+        DELETE FROM role
+        WHERE id = #{id} AND tenant_id = #{tenantId}
+    </delete>
+
+</mapper>
